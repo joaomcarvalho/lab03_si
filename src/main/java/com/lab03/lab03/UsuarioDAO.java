@@ -25,6 +25,12 @@ public class UsuarioDAO {
 	    return query.getSingleResult();
 	}
 	
+	public Usuario consultaLogin(String login) {
+	    TypedQuery<Usuario> query = em.createQuery("select obj from Usuario obj where obj.login = :login", Usuario.class);
+	    query.setParameter("login", login);
+	    return query.getSingleResult();
+	}
+	
 	public boolean usuarioExiste(String login) {
 		TypedQuery<Long> query = 
 				em.createQuery

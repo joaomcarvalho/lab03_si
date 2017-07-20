@@ -45,6 +45,7 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		promise.then(function(response){
 			if(!self.contemSeriePerfil(response.data.imdbID)){
 				self.seriesPerfil.push(response.data);
+				self.serieToBD(response.data);
 			}else{
 				$mdDialog.show(
      		 	$mdDialog.alert()
@@ -57,6 +58,18 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
         		.targetEvent(ev)
    			 );
 			}
+		});
+	};
+
+	self.serieToBD = function(serie){
+		var url = "/addSerie";
+		data = {
+			idUser :$scope.usuarioLogado,
+			imdbId : serie.imdbID
+		}
+
+		$http.post(url,data).then(function(response){
+			
 		});
 	};
 
@@ -113,18 +126,50 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		}else{
 			serie.nota = nota;
 		}
-	}
+	};
 
 	self.setUltimoEpisodio = function(serie, episodio) {
 		serie.ultimoEpisodio = episodio
-	}
+	};
 
 	self.adicionarAoPerfilERemoverWatchList = function(evt, serie) {
 		self.adicionarAoPerfil(evt, serie);
 		self.removerWatchList(serie);
-	}
+	};
 
 	self.goHome = function(){
-		$state.go('main.login');
-	}
+	 	$state.go('main.home');
+	};
+	
+	self.criarConta = function(loginUser, senhaUser){
+		url = "/usuario";
+		data = {
+			login:loginUser,
+			senha:senhaUser
+		}
+
+		$http.post(url,data).then(function(response){
+			
+		});
+	};
+
+	self.logar = function(loginUser, senhaUser){
+		url = "/usuarioLogar";
+		data = {
+			login:loginUser,
+			senha:senhaUser
+		}
+
+		$http.post(url,data).then(function(response){
+			$scope.usuarioLogado = response.data.id;
+			self.goHome();
+		});
+	};
+
+	(function(){
+		console.log($scope.usuarioLogado);
+		if(!$scope.usuarioLogado){
+			$state.go('main.login');
+		}
+	});
 });

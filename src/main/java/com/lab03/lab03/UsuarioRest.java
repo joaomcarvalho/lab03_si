@@ -15,7 +15,7 @@ public class UsuarioRest {
 	
 	@RequestMapping(value="/usuario", method=RequestMethod.POST)
 	public Usuario postUsuario(@RequestBody Usuario usuario){
-		if (dao.usuarioExiste(usuario.getLogin()))
+		if (!dao.usuarioExiste(usuario.getLogin()))
 			return dao.persisteUsuario(usuario);
 		else
 			throw new RuntimeException("Ja existe esse usuario, tu tomou no butao");
@@ -24,5 +24,15 @@ public class UsuarioRest {
 	@RequestMapping(value="/usuario/{id}", method=RequestMethod.GET)
 	public Usuario getUsuario(@PathVariable Long id){
 		return dao.consultaObjeto(id);
+	}
+	
+	@RequestMapping(value="/usuarioLogar", method=RequestMethod.POST)
+	public Usuario login(@RequestBody Usuario usuario){
+		if (dao.usuarioExiste(usuario.getLogin())) {
+			Usuario novo = dao.consultaLogin(usuario.getLogin());
+			if(novo.getSenha().equals(usuario.getSenha()) && novo.getLogin().equals(usuario.getLogin()))
+				return novo;
+		}
+			throw new RuntimeException("Usuario ou Senha invalidos");
 	}
 }

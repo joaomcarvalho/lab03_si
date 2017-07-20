@@ -1,4 +1,15 @@
-<h3> TOMAR NO CU </h3>
-<button type="submit" class="btn btn-warning" 
-          		data-toggle="tab" data-target="#pesquisa"
-          		data-ng-click="ctrl.goHome()">Pesquisar</button>
+
+   	<form>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Login" ng-model="login">
+                <input type="password" class="form-control" placeholder="Senha" ng-model="senha">
+            </div>
+          <button type="submit" ng-click="ctrl.criarConta(login, senha)">Registrar</button>
+      </form>
+      <form>
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Login" ng-model="login2">
+                <input type="password" class="form-control" placeholder="Senha" ng-model="senha2">
+            </div>
+          <button type="submit" ng-click="ctrl.logar(login2, senha2)">Logar</button>
+      </form>
