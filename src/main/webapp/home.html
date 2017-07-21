@@ -6,6 +6,7 @@
        
         </div>
     <div class="navbar-collapse collapse">
+      <md-button class="btn btn-danger navbar-right" data-ng-click="ctrl.logout()">Sair</md-button>
       <form class="navbar-form navbar-right" data-ng-submit="ctrl.search(searchText,$event)">
             <div class="form-group">
                 <input type="text" class="form-control" placeholder="Pesquisar" ng-model="searchText" data-target="#pesquisa">
@@ -14,7 +15,8 @@
           		data-toggle="tab" data-target="#pesquisa"
           		data-ng-click="ctrl.search(searchText)">Pesquisar</button>
       </form>
-   	</div>
+   	  
+    </div>
     </div>
   </nav>
 

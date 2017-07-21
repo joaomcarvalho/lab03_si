@@ -17,6 +17,7 @@ public class SerieDAO {
 	private EntityManager em;
 	
 	public Serie persisteSerie(Serie serie) {
+		System.out.println("Persistindo: " + serie.getImdbID());
 		em.persist(serie);
 		return serie;
 	}
@@ -25,5 +26,22 @@ public class SerieDAO {
 	    TypedQuery<Serie> query = em.createQuery("select obj from Serie obj where obj.idUser = :id", Serie.class);
 	    query.setParameter("id", id);
 	    return query.getResultList();
+	}
+	
+	public Serie getSerie(String imdbID){
+		 TypedQuery<Serie> query = em.createQuery("select obj from Serie obj where obj.imdbID = :imdbID", Serie.class);
+		 query.setParameter("imdbID", imdbID);
+		 return query.getSingleResult();
+	}
+	
+	public Serie atualizaSerie(Serie serie) {
+		serie = em.merge(serie);
+		em.flush();
+		em.refresh(serie);
+		return serie;
+	}
+	
+	public void removerSerie(Serie serie) {
+		em.remove(serie);
 	}
 }

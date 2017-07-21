@@ -19,8 +19,41 @@ public class Serie {
 	private long idUser;
 	
 	@Column(name = "ID_IMDB")
-	private String imdbId;
+	private String imdbID;
+	
+	@Column(name = "ON_WATCHLIST")
+	private boolean onWatchList;
+	
+	@Column(name = "NOTA_SERIE")
+	private Long nota;
+	
+	@Column(name = "EPISODIO_SERIE")
+	private String episodio;
 
+	public Long getNota() {
+		return nota;
+	}
+
+	public void setNota(Long nota) {
+		this.nota = nota;
+	}
+
+	public String getEpisodio() {
+		return episodio;
+	}
+
+	public void setEpisodio(String episodio) {
+		this.episodio = episodio;
+	}
+
+	public boolean getOnWatchList() {
+		return this.onWatchList;
+	}
+	
+	public void setOnWatchList(boolean on) {
+		this.onWatchList = on;
+	}
+	
 	public long getId() {
 		return id;
 	}
@@ -37,12 +70,12 @@ public class Serie {
 		this.idUser = idUser;
 	}
 
-	public String getImdbId() {
-		return imdbId;
+	public String getImdbID() {
+		return imdbID;
 	}
 
-	public void setImdbId(String imdbId) {
-		this.imdbId = imdbId;
+	public void setImdbID(String imdbId) {
+		this.imdbID = imdbId;
 	}
 
 }

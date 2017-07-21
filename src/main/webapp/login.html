@@ -1,15 +1,12 @@
-
-   	<form>
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="Login" ng-model="login">
-                <input type="password" class="form-control" placeholder="Senha" ng-model="senha">
-            </div>
-          <button type="submit" ng-click="ctrl.criarConta(login, senha)">Registrar</button>
-      </form>
-      <form>
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="Login" ng-model="login2">
-                <input type="password" class="form-control" placeholder="Senha" ng-model="senha2">
-            </div>
-          <button type="submit" ng-click="ctrl.logar(login2, senha2)">Logar</button>
-      </form>
+<link rel="stylesheet" type="text/css" href="login.css">
+<body>
+  <div class="login">
+  <h1>Login</h1>
+    <form method="post">
+      <input type="text" name="u" placeholder="Username" required="required" ng-model="login"/>
+        <input type="password" name="p" placeholder="Password" required="required" ng-model="senha"/>
+        <button type="submit" class="btn btn-primary btn-block btn-large" ng-click="ctrl.logar($event, login, senha)">Logar.</button>
+        <button type="submit" class="btn btn-success btn-block btn-large" ng-click="ctrl.criarConta($event, login, senha)">Registrar.</button>
+    </form>
+</div>
+</body>

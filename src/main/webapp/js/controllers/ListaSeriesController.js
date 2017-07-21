@@ -7,7 +7,6 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 	this.seriesWatchList = [];
 	
 	self.search = function(name,ev) { 
-		console.log("entrei");
 		var promise = ListaSeriesService.search(name);
 		promise.then(function(response){
 			if (response.data.Response == "False"){
@@ -40,12 +39,13 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		return false;
 	};
 
-	self.adicionarAoPerfil = function(ev, serie) {
-		var promise = ListaSeriesService.getSingleSerie(serie);
+	self.adicionarAoPerfil = function(ev, serie, flag) {
+		var promise = ListaSeriesService.getSingleSerie(serie.imdbID);
 		promise.then(function(response){
 			if(!self.contemSeriePerfil(response.data.imdbID)){
 				self.seriesPerfil.push(response.data);
-				self.serieToBD(response.data);
+				if(!flag)
+					self.serieToBD(response.data, false);
 			}else{
 				$mdDialog.show(
      		 	$mdDialog.alert()
@@ -61,11 +61,12 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		});
 	};
 
-	self.serieToBD = function(serie){
+	self.serieToBD = function(serie, onWatchList){
 		var url = "/addSerie";
 		data = {
 			idUser :$scope.usuarioLogado,
-			imdbId : serie.imdbID
+			imdbID : serie.imdbID,
+			onWatchList: onWatchList
 		}
 
 		$http.post(url,data).then(function(response){
@@ -85,13 +86,24 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		$mdDialog.show(dialog).then(function(){
 			var index = self.seriesPerfil.indexOf(serie);
 			self.seriesPerfil.splice(index,1);
+			self.removeBD(serie);
 		})
 		
 	};
 
+	self.removeBD = function(serie){
+		var url = "removerSerie/" + $scope.usuarioLogado;
+		imdbID = serie.imdbID;
+
+		$http.post(url,imdbID).then(function(){
+
+		})
+	}
+
 	self.adicionarAoWatchList = function(ev, serie) {
 		if(!self.contemSerieWatchList(serie.imdbID)){
 			self.seriesWatchList.push(serie);
+			self.serieToBD(serie, true);
 		}else{
 			$mdDialog.show(
      		 	$mdDialog.alert()
@@ -115,9 +127,11 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		return false;
 	}
 
-	self.removerWatchList = function(serie) {
+	self.removerWatchList = function(serie, flag) {
 		var index = self.seriesWatchList.indexOf(serie);
 		self.seriesWatchList.splice(index,1);
+		if(!flag)
+			removeBD(serie);
 	};
 
 	self.setNota = function(ev, serie, nota) {
@@ -125,23 +139,65 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 			
 		}else{
 			serie.nota = nota;
+			var url = "/setNota/" + $scope.usuarioLogado + "/" + serie.imdbID;
+			$http.put(url,nota).then(function() {
+
+			});
 		}
 	};
 
 	self.setUltimoEpisodio = function(serie, episodio) {
+		console.log(serie.nota);
 		serie.ultimoEpisodio = episodio
 	};
 
 	self.adicionarAoPerfilERemoverWatchList = function(evt, serie) {
-		self.adicionarAoPerfil(evt, serie);
-		self.removerWatchList(serie);
+		self.adicionarAoPerfil(evt, serie, true);
+		self.removerWatchList(serie, true);
+		var url = "/watchListToPerfil/" +  $scope.usuarioLogado;
+		
+		var imdbID = serie.imdbID
+	
+		
+		$http.put(url,imdbID).then(function(response){
+			console.log("deu bom");
+		})
 	};
 
 	self.goHome = function(){
 	 	$state.go('main.home');
+	 	self.carregaSeries();
 	};
+
+	self.carregaSeries = function(){
+		self.seriesPerfil = [];
+		self.seriesWatchList = [];
+		var i = 0;
+		var url = "/addSerie/" + $scope.usuarioLogado;
+		$http.get(url).then(function(response){
+			for (i = response.data.length - 1; i >= 0; i--) {
+				if(!response.data[i].onWatchList){
+					var promise = ListaSeriesService.getSingleSerie(response.data[i].imdbID);
+					$scope.nota = response.data[i].nota;
+
+					promise.then(function(response){
+						var serie = response.data;
+						serie.nota = $scope.nota;
+						console.log(serie.nota);
+						self.seriesPerfil.push(serie);
+					})
+		
+				}else{
+					var promise = ListaSeriesService.getSingleSerie(response.data[i].imdbID);
+					promise.then(function(response){
+						self.seriesWatchList.push(response.data);
+					})
+				}
+			}
+		});
+	}
 	
-	self.criarConta = function(loginUser, senhaUser){
+	self.criarConta = function(ev, loginUser, senhaUser){
 		url = "/usuario";
 		data = {
 			login:loginUser,
@@ -149,11 +205,32 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		}
 
 		$http.post(url,data).then(function(response){
-			
+			$mdDialog.show(
+     		 	$mdDialog.alert()
+        		.parent(angular.element(document.querySelector('#popupContainer')))
+       		    .clickOutsideToClose(true)
+        		.title('Cadastro Realizado')
+        		.textContent('Cadastro Realizado com Sucesso')
+        		.ariaLabel('Alert Dialog Demo')
+        		.ok('Ok')
+        		.targetEvent(ev)
+   			 );
+		}, function(response){
+			$mdDialog.show(
+     		 	$mdDialog.alert()
+        		.parent(angular.element(document.querySelector('#popupContainer')))
+       		    .clickOutsideToClose(true)
+        		.title('Ops!')
+        		.textContent('Este usuário já existe')
+        		.ariaLabel('Alert Dialog Demo')
+        		.ok('Ok')
+        		.targetEvent(ev)
+   			 );
 		});
 	};
 
-	self.logar = function(loginUser, senhaUser){
+	self.logar = function(ev, loginUser, senhaUser){
+		console.log(loginUser + " " + senhaUser);
 		url = "/usuarioLogar";
 		data = {
 			login:loginUser,
@@ -163,7 +240,23 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		$http.post(url,data).then(function(response){
 			$scope.usuarioLogado = response.data.id;
 			self.goHome();
+		}, function(response){
+			$mdDialog.show(
+     		 	$mdDialog.alert()
+        		.parent(angular.element(document.querySelector('#popupContainer')))
+       		    .clickOutsideToClose(true)
+        		.title('Ops!')
+        		.textContent('Usuário ou senha incorretos!')
+        		.ariaLabel('Alert Dialog Demo')
+        		.ok('Ok')
+        		.targetEvent(ev)
+   			 );
 		});
+	};
+
+	self.logout = function() {
+		$scope.usuarioLogado = undefined;
+		$state.go('main.login')
 	};
 
 	(function(){
@@ -171,5 +264,5 @@ angular.module("listaSeries").controller("listaSeriesCtrl", function($http, List
 		if(!$scope.usuarioLogado){
 			$state.go('main.login');
 		}
-	});
+	})();
 });

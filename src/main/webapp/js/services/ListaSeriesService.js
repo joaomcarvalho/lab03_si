@@ -24,7 +24,7 @@ function ListaSeriesService($http) {
 	*
 	*/
 	this.getSingleSerie = function(serie) {
-		var uri = encodeURI(singleSerieUrl.replace(/IMDBID/, serie.imdbID));
+		var uri = encodeURI(singleSerieUrl.replace(/IMDBID/, serie));
 		return $http.get(uri);
 	}
 }]);
